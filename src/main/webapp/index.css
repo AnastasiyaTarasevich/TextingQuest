@@ -1,0 +1,26 @@
+body {
+    background-image: url('https://doctorteam.ru/wp-content/uploads/2024/09/luchshie-idei-dlya-kvesta-top-5-prikolnykh-kvesta-za-vsyu-istoriyu1.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+}
+
+header {
+
+    border-radius: 10px;
+    padding: 20px;
+}
+/* Делает ссылки белыми с приглушённым цветом */
+.nav-link {
+    font-size: 1.25rem;
+    color: rgba(255, 255, 255, 0.7); /* Полупрозрачный белый цвет */
+    transition: color 0.3s ease;     /* Плавный переход цвета */
+}
+
+/* Яркий белый цвет при наведении */
+.nav-link:hover {
+    color: rgba(255, 255, 255, 1);  /* Полностью белый цвет */
+}
+
+
