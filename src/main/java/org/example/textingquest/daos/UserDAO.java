@@ -2,9 +2,12 @@ package org.example.textingquest.daos;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
+import org.example.textingquest.entities.Role;
 import org.example.textingquest.entities.User;
 import org.example.textingquest.utils.ConnectionManager;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -17,6 +20,9 @@ public class UserDAO implements DAO<Long, User> {
 
     private static final String SAVE_SQL=
             "INSERT INTO user (nickname, password, email, role) VALUES (?, ?, ?, ?)";
+
+    private static final String GET_BY_NICKNAME_AND_PASSWORD_SQL=
+            "SELECT * FROM user WHERE nickname = ? AND password = ?";
 
 
     public static UserDAO getInstance() {
@@ -60,5 +66,38 @@ public class UserDAO implements DAO<Long, User> {
     @Override
     public boolean delete(User id) {
         return false;
+    }
+
+    @SneakyThrows
+    public Optional <User> findByNicknameAndPassword(String nickname, String password)
+    {
+        try(var connection= ConnectionManager.open();
+            var preparedStatement = connection.prepareStatement(GET_BY_NICKNAME_AND_PASSWORD_SQL)) {
+            preparedStatement.setString(1, nickname);
+            preparedStatement.setString(2, password);
+
+
+            var resultSet = preparedStatement.executeQuery();
+            User user = null;
+            if (resultSet.next()) {
+                user = buildEntity(resultSet);
+            }
+
+
+            return Optional.ofNullable(user);
+        }
+
+
+    }
+
+    private User buildEntity(ResultSet resultSet) throws SQLException {
+
+        return User.builder()
+                .id(resultSet.getObject("id",Integer.class))
+                .nickname(resultSet.getObject("nickname",String.class))
+                .email(resultSet.getObject("email",String.class))
+                .password(resultSet.getObject("password",String.class))
+                .role(Role.find(resultSet.getObject("role",String.class)).orElse(null))
+                .build();
     }
 }

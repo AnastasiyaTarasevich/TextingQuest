@@ -17,7 +17,7 @@ public class RegistrationServlet extends HttpServlet {
     private final UserService userService=UserService.getInstance();
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher("registration").forward(req,resp);
+        req.getRequestDispatcher("registration.jsp").forward(req,resp);
     }
 
     @Override
@@ -27,13 +27,14 @@ public class RegistrationServlet extends HttpServlet {
                 .password(req.getParameter("password"))
                 .email(req.getParameter("email"))
                 .build();
+        System.out.println("Received userDTO: " + userDTO);
         try {
             userService.createUser(userDTO);
             resp.sendRedirect("/login");
         }catch (ValidationException e)
         {
             req.setAttribute("errors",e.getErrors());
-            doGet(req,resp);
+            doGet(req, resp);
         }
     }
 }

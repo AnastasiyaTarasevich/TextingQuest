@@ -21,17 +21,16 @@ public class CreateUserValidator implements Validator<UserDTO>{
     @Override
     public ValidationResult isValid(UserDTO object) {
        var validationResult=new ValidationResult();
-       if(object.getNickname().isEmpty())
-       {
-           validationResult.add(Error.of("invalid.nickname","Nickname is invalid"));
+        if (object.getNickname() == null || object.getNickname().isEmpty()) {
+            validationResult.add(Error.of("invalid.nickname", "Nickname is invalid"));
+        }
 
-       }
-        if(object.getPassword().isEmpty())
+        if(object.getNickname() == null || object.getPassword().isEmpty())
         {
             validationResult.add(Error.of("invalid.password","Password is invalid"));
 
         }
-        if(object.getEmail().isEmpty())
+        if(object.getNickname() == null || object.getEmail().isEmpty())
         {
             validationResult.add(Error.of("invalid.email","Email is invalid"));
 
