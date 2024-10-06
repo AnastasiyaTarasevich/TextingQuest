@@ -8,10 +8,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.example.textingquest.dtos.UserDTO;
 import org.example.textingquest.exceptions.ValidationException;
 import org.example.textingquest.services.UserService;
+import org.example.textingquest.utils.UrlPath;
 
 import java.io.IOException;
 
-@WebServlet("/registration")
+@WebServlet(UrlPath.REGISTRATION)
 public class RegistrationServlet extends HttpServlet {
 
     private final UserService userService=UserService.getInstance();

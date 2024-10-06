@@ -8,10 +8,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.example.textingquest.dtos.UserDTO;
 import org.example.textingquest.services.UserService;
+import org.example.textingquest.utils.UrlPath;
 
 import java.io.IOException;
 
-@WebServlet("/login")
+@WebServlet(UrlPath.LOGIN)
 public class LoginServlet extends HttpServlet {
 
     private static final UserService userService=UserService.getInstance();
