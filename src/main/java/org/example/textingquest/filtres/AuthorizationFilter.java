@@ -21,7 +21,7 @@ public class AuthorizationFilter implements Filter {
         System.out.println("Requested URI: " + uri);
         System.out.println("URI: " + uri + ", isPublicPath: " + isPublicPath(uri));
 
-        if (isPublicPath(uri) || isUserLoggedIn(servletRequest)) {
+        if (isPublicPath(uri) || isUserLoggedIn(servletRequest) || isStaticResource(uri)) {
             filterChain.doFilter(servletRequest, servletResponse);
         } else {
             ((HttpServletResponse) servletResponse).sendRedirect("/login");
@@ -36,6 +36,7 @@ public class AuthorizationFilter implements Filter {
     private boolean isPublicPath(String uri) {
         return PUBLIC_PATH.stream().anyMatch(uri::equals);
     }
-
-
+    private boolean isStaticResource(String uri) {
+        return uri.startsWith("/resources/") || uri.startsWith("/static/") || uri.startsWith("/assets/") || uri.startsWith("/css/") || uri.startsWith("/js/");
+    }
 }
