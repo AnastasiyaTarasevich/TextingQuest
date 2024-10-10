@@ -1,13 +1,11 @@
 body {
     background-image: url('https://doctorteam.ru/wp-content/uploads/2024/09/luchshie-idei-dlya-kvesta-top-5-prikolnykh-kvesta-za-vsyu-istoriyu1.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 100vh;
-    --body-text-color: white; /* Белый цвет текста */
+    background-size: cover; /* Изображение будет масштабироваться, чтобы заполнить весь экран */
+    background-position: center; /* Изображение будет центрировано */
+    background-repeat: no-repeat; /* Запретить повторение изображения */
+    background-color: darkred; /* Цвет фона, который будет виден, когда изображение закончится */
+    min-height: 100vh; /* Минимальная высота body - 100% высоты экрана */
 }
-
-
 
 header {
 
@@ -26,4 +24,20 @@ header {
     color: rgba(255, 255, 255, 1);  /* Полностью белый цвет */
 }
 
+.card {
+    height: 100%; /* Делаем карточки растягивающимися по высоте */
+}
 
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Разделяем контент равномерно */
+    height: 100%; /* Заставляем тело карточки занимать всё доступное пространство */
+}
+a {
+    text-decoration: none; /* Убираем подчеркивание ссылок */
+    color: inherit; /* Устанавливаем цвет текста как у родительского элемента */
+}
+.card:hover {
+    transform: scale(1.05); /* Увеличиваем карточку при наведении */
+}

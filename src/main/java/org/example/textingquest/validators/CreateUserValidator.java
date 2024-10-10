@@ -5,13 +5,13 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.example.textingquest.dtos.UserDTO;
 import org.example.textingquest.entities.Role;
+import org.example.textingquest.exceptions.ValidationException;
+import org.example.textingquest.services.UserService;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateUserValidator implements Validator<UserDTO>{
 
     private static final CreateUserValidator INSTANCE=new CreateUserValidator();
-
-
 
     public static CreateUserValidator getInstance()
     {
@@ -35,7 +35,9 @@ public class CreateUserValidator implements Validator<UserDTO>{
             validationResult.add(Error.of("invalid.email","Email is invalid"));
 
         }
-
+        if (UserService.getInstance().checkDoubleRegistration(object.getNickname(), object.getEmail()).isPresent()) {
+            validationResult.add(Error.of("user.is.present", "User with this nickname and email has already registered"));
+        }
         return validationResult;
     }
 }

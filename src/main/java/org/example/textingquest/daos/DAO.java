@@ -8,8 +8,8 @@ public interface DAO<L extends Number, U> {
     boolean update(U o);
 
     List findAll();
-    Optional findById(U id);
+    Object findById(Integer id);
 
     Object save(U o);
-    boolean delete(U id);
+    boolean delete(Integer id);
 }

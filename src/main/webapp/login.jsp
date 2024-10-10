@@ -30,7 +30,7 @@
             <div class="col-md-4 inputGroupContainer">
                 <div class="input-group">
                     <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                    <input name="username" placeholder="Username" class="form-control"  type="text" minlength="4" required>
+                    <input name="nickname" placeholder="Username" class="form-control"  type="text" minlength="4" required>
                 </div>
             </div>
 
@@ -50,7 +50,7 @@
             <!-- Text input-->
             <br>
 
-            <span id="password-error" style="color: red;"></span>
+
             <!-- Button -->
             <div class="form-group">
                 <label class="col-md-4 control-label"></label>
@@ -58,9 +58,6 @@
                     <input id="submit" type="submit" class="btn btn-dark" value="Войти" >
                 </div>
                 <br>
-
-
-
             </div>
         </div>
     </fieldset>

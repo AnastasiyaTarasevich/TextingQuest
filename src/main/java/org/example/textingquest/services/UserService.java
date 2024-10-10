@@ -40,6 +40,11 @@ public class UserService {
     public Optional<UserDTO> login(String nickname, String password) {
         return userDAO.findByNicknameAndPassword(nickname,password).map(userMapper::mapFrom);
     }
+
+    public Optional <UserDTO> checkDoubleRegistration(String nickname, String email)
+    {
+        return userDAO.findByNicknameAndEmail(nickname, email).map(userMapper::mapFrom);
+    }
 }
 
 

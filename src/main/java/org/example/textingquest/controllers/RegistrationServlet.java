@@ -29,6 +29,7 @@ public class RegistrationServlet extends HttpServlet {
                 .email(req.getParameter("email"))
                 .build();
         System.out.println("Received userDTO: " + userDTO);
+
         try {
             userService.createUser(userDTO);
             resp.sendRedirect("/login");

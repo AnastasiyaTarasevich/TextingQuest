@@ -23,7 +23,8 @@ public class UserDAO implements DAO<Long, User> {
 
     private static final String GET_BY_NICKNAME_AND_PASSWORD_SQL=
             "SELECT * FROM user WHERE nickname = ? AND password = ?";
-
+    private static final String GET_BY_NICKNAME_AND_EMAIL_SQL=
+            "SELECT * FROM user WHERE nickname = ? AND email = ?";
 
     public static UserDAO getInstance() {
         return INSTANCE;
@@ -41,7 +42,7 @@ public class UserDAO implements DAO<Long, User> {
     }
 
     @Override
-    public Optional findById(User id) {
+    public Optional findById(Integer id) {
         return Optional.empty();
     }
 
@@ -64,10 +65,29 @@ public class UserDAO implements DAO<Long, User> {
     }
 
     @Override
-    public boolean delete(User id) {
+    public boolean delete(Integer id) {
         return false;
     }
 
+    @SneakyThrows
+    public Optional <User> findByNicknameAndEmail(String nickname, String email)
+    {
+        try(var connection=ConnectionManager.open();
+        var preparedStatement=connection.prepareStatement(GET_BY_NICKNAME_AND_EMAIL_SQL))
+        {
+            preparedStatement.setString(1,nickname);
+            preparedStatement.setString(2,email);
+            var resultSet=preparedStatement.executeQuery();
+
+            User user= null;
+            if(resultSet.next())
+            {
+                user=buildEntity(resultSet);
+            }
+            return Optional.ofNullable(user);
+        }
+
+    }
     @SneakyThrows
     public Optional <User> findByNicknameAndPassword(String nickname, String password)
     {
