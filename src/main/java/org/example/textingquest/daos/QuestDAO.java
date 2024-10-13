@@ -4,8 +4,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import org.example.textingquest.entities.Quest;
-import org.example.textingquest.entities.Role;
-import org.example.textingquest.entities.User;
 import org.example.textingquest.utils.ConnectionManager;
 
 import java.sql.ResultSet;

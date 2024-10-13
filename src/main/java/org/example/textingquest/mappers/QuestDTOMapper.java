@@ -25,4 +25,6 @@ public class QuestDTOMapper implements Mapper<Quest, QuestDTO> {
                 .prologue(questDTO.getPrologue())
                 .build();
     }
+
+
 }

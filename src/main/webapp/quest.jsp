@@ -24,10 +24,9 @@
 
         <!-- Описание квеста -->
         <p class="description">${quest.description}</p>
-
         <!-- Кнопка "Начать квест" -->
         <div class="text-center mt-5">
-            <a href="startQuest?questId=${quest.id}" class="btn btn-lg btn-warning text-uppercase px-5 py-3">
+            <a href="${pageContext.request.contextPath}/startQuest?questId=${quest.id}" class="btn btn-lg btn-warning text-uppercase px-5 py-3">
                 Начать квест
             </a>
         </div>
