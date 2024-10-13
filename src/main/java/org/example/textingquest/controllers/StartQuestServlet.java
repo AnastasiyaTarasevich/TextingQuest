@@ -82,6 +82,8 @@ public class StartQuestServlet extends HttpServlet {
                     currentQuestion.get().setAnswers(answers);
                     req.setAttribute("currentChapter", chapter.get());
                     req.setAttribute("currentQuestion", currentQuestion.get());
+                    String previousAnswerDescription = (String) req.getAttribute("previousAnswerDescription");
+                    req.setAttribute("previousAnswerDescription", previousAnswerDescription);
                     req.getRequestDispatcher("startQuest.jsp").forward(req, resp);
                 }
             }
@@ -103,20 +105,26 @@ public class StartQuestServlet extends HttpServlet {
         String answerIdParam = req.getParameter("answerId");
 
         if (answerIdParam != null) {
-            try {
+
                 Integer answerId = Integer.parseInt(answerIdParam);
                 Answer selectedAnswer = answerDAO.findById(answerId);
 
-                if (selectedAnswer != null && selectedAnswer.getNext_question_id() != null) {
+            if (selectedAnswer != null) {
+                // Проверка на наличие следующего вопроса
+                if (selectedAnswer.getNext_question_id() != null) {
                     // Обновляем текущий вопрос в сессии на следующий вопрос
+                    req.setAttribute("previousAnswerDescription", selectedAnswer.getDescription());
                     req.getSession().setAttribute("currentQuestionId", selectedAnswer.getNext_question_id());
                     doGet(req, resp); // Перенаправляем на следующий вопрос
                     return;
+                } else {
+                    // Если у ответа нет следующего вопроса, считаем квест завершённым
+                    req.setAttribute("previousAnswerDescription", selectedAnswer.getDescription());
+                    req.getRequestDispatcher("endOfQuest.jsp").forward(req, resp);  // Перенаправляем на страницу завершения квеста
+                    return;
                 }
-            } catch (NumberFormatException e) {
-                // Обработка исключения, если answerId не удалось преобразовать в Integer
-                e.printStackTrace();
             }
+
         }
             Optional<Chapter> nextChapter = chapterDAO.findNextChapter(questId, currentChapterNumber);
 
