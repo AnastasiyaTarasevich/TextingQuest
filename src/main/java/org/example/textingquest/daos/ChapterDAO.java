@@ -19,6 +19,9 @@ public class ChapterDAO implements DAO<Long, Chapter> {
 
     private static final ChapterDAO INSTANCE = new ChapterDAO();
 
+
+    private static final String GET_BY_ID_SQL=
+            "SELECT * FROM chapters WHERE id = ?";
     private static final String GET_BY_ID_AND_CHAPTER =
             "SELECT * FROM chapters WHERE quest_id = ? AND chapter_number = ?";
     private static final String GET_NEXT =
@@ -38,9 +41,20 @@ public class ChapterDAO implements DAO<Long, Chapter> {
         return List.of();
     }
 
+    @SneakyThrows
     @Override
-    public Object findById(Integer id) {
-        return null;
+    public Chapter findById(Integer id) {
+        try (var connection = ConnectionManager.open();
+             var preparedStatement = connection.prepareStatement(GET_BY_ID_SQL)) {
+            preparedStatement.setString(1, String.valueOf(id));
+            var resultSet = preparedStatement.executeQuery();
+
+            Chapter chapter = null;
+            if (resultSet.next()) {
+                chapter = buildEntity(resultSet);
+            }
+            return chapter;
+        }
     }
 
     @Override

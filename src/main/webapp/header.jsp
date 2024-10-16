@@ -13,8 +13,7 @@
       <ul class="nav mb-2 justify-content-center mb-md-0">
         <li><a href="${pageContext.request.contextPath}/" class="nav-link px-2 link-secondary">Главная страница</a></li>
         <li><a href="${pageContext.request.contextPath}/quests" class="nav-link px-2">Квесты</a></li>
-        <li><a href="#" class="nav-link px-2">Отзывы</a></li>
-        <li><a href="#" class="nav-link px-2">Персональные достижения</a></li>
+        <li><a href="${pageContext.request.contextPath}/reviews" class="nav-link px-2">Отзывы</a></li>
       </ul>
     </div>
 

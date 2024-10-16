@@ -8,14 +8,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.textingquest.daos.AnswerDAO;
 import org.example.textingquest.daos.ChapterDAO;
-import org.example.textingquest.daos.QuestDAO;
 import org.example.textingquest.daos.QuestionDAO;
 import org.example.textingquest.entities.Answer;
 import org.example.textingquest.entities.Chapter;
 import org.example.textingquest.entities.Question;
-import org.example.textingquest.services.ChapterService;
-import org.example.textingquest.services.QuestService;
-import org.example.textingquest.utils.TextFormatter;
 
 import java.io.IOException;
 import java.util.List;
@@ -113,9 +109,23 @@ public class StartQuestServlet extends HttpServlet {
                 // Проверка на наличие следующего вопроса
                 if (selectedAnswer.getNext_question_id() != null) {
                     // Обновляем текущий вопрос в сессии на следующий вопрос
-                    req.setAttribute("previousAnswerDescription", selectedAnswer.getDescription());
-                    req.getSession().setAttribute("currentQuestionId", selectedAnswer.getNext_question_id());
-                    doGet(req, resp); // Перенаправляем на следующий вопрос
+                    Optional<Question> nextQuestion = questionDAO.findById(selectedAnswer.getNext_question_id());
+                    Integer nextQuestionChapterId = nextQuestion.get().getChapter_id();
+
+                    Chapter nextChapter = chapterDAO.findById(nextQuestionChapterId);
+                    if (!nextQuestionChapterId.equals(currentChapterNumber))
+                    {
+                        req.setAttribute("newChapter", nextChapter); // Описание новой главы
+
+                        req.setAttribute("isNewChapter", true); // Флаг перехода в новую главу
+                        req.setAttribute("previousAnswerDescription", selectedAnswer.getDescription());
+                        req.getSession().setAttribute("currentQuestionId", selectedAnswer.getNext_question_id());
+                        doGet(req, resp); // Перенаправляем на следующий вопрос
+                    }else {
+                        req.setAttribute("previousAnswerDescription", selectedAnswer.getDescription());
+                        req.getSession().setAttribute("currentQuestionId", selectedAnswer.getNext_question_id());
+                        doGet(req, resp); // Перенаправляем на следующий вопрос
+                    }
                     return;
                 } else {
                     // Если у ответа нет следующего вопроса, считаем квест завершённым
