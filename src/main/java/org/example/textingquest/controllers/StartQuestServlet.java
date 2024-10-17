@@ -76,6 +76,8 @@ public class StartQuestServlet extends HttpServlet {
                 if (currentQuestion.isPresent()) {
                     List<Answer> answers = answerDAO.getAnswersByQuestionId(currentQuestionId);
                     currentQuestion.get().setAnswers(answers);
+
+                    req.getSession().setAttribute("questId", questId);
                     req.setAttribute("currentChapter", chapter.get());
                     req.setAttribute("currentQuestion", currentQuestion.get());
                     String previousAnswerDescription = (String) req.getAttribute("previousAnswerDescription");
@@ -116,7 +118,6 @@ public class StartQuestServlet extends HttpServlet {
                     if (!nextQuestionChapterId.equals(currentChapterNumber))
                     {
                         req.setAttribute("newChapter", nextChapter); // Описание новой главы
-
                         req.setAttribute("isNewChapter", true); // Флаг перехода в новую главу
                         req.setAttribute("previousAnswerDescription", selectedAnswer.getDescription());
                         req.getSession().setAttribute("currentQuestionId", selectedAnswer.getNext_question_id());
