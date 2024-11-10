@@ -19,7 +19,6 @@ public class ConQuestServlet extends HttpServlet {
 
     private static final QuestService questService=QuestService.getInstance();
 
-    private static final QuestDTOMapper questDTOMapper=QuestDTOMapper.getInstance();
 
 
     @Override

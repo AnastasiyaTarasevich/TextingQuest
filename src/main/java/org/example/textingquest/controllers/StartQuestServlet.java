@@ -12,10 +12,14 @@ import org.example.textingquest.daos.QuestionDAO;
 import org.example.textingquest.entities.Answer;
 import org.example.textingquest.entities.Chapter;
 import org.example.textingquest.entities.Question;
+import org.example.textingquest.responses.QuestResponse;
+import org.example.textingquest.services.QuestService;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+
+
 
 @WebServlet("/startQuest")
 public class StartQuestServlet extends HttpServlet {
@@ -26,71 +30,48 @@ public class StartQuestServlet extends HttpServlet {
 
     private final AnswerDAO answerDAO=AnswerDAO.getInstance();
 
+    private final QuestService questService=QuestService.getInstance();
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
-        // Пытаемся получить questId из параметра запроса
-        String questIdParam = req.getParameter("questId");
-        Integer questId;
 
-        // Если параметр questId не передан, пробуем получить его из сессии
-        if (questIdParam != null) {
-            questId = Integer.parseInt(questIdParam);
-        } else {
-            questId = (Integer) req.getSession().getAttribute("questId");
+        Integer questId = questService.parseQuestId(req);
+        Integer currentChapterNumber = questService.getCurrentChapterNumber(req);
+        Integer currentQuestionId = questService.getCurrentQuestionId(req);
+
+        // Получение данных квеста через сервис
+        QuestResponse questResponse = questService.processQuest(questId, currentChapterNumber, currentQuestionId);
+
+
+        setupRequestAttributes(req, questResponse);
+        if (questResponse.isIntroductoryChapter())
+        {
+            req.getRequestDispatcher("startQuest.jsp").forward(req, resp);
         }
-        Integer currentChapterNumber = (Integer) req.getSession().getAttribute("currentChapterNumber");
-
-        // Если текущий номер главы не установлен, начинаем с первой
-        if (currentChapterNumber == null) {
-            currentChapterNumber = 1;
-        }
-
-        // Находим текущую главу
-        Optional<Chapter> chapter = chapterDAO.findByIdAndChapterId(questId, currentChapterNumber);
-
-        if (chapter.isPresent()) {
-            // Находим вопросы текущей главы
-            List<Question> questions = questionDAO.getQuestionsByChapterId(chapter.get().getId());
-
-            // Если вопросов нет, перейти к следующей главе
-            if (questions.isEmpty()) {
-                // Если вопросов нет, то это ознакомительная глава
-                req.setAttribute("currentChapter", chapter.get());
-                req.setAttribute("isIntroductoryChapter", true); // Флаг для JSP
-                req.getSession().setAttribute("questId", questId);
-                req.getSession().setAttribute("currentChapterNumber", chapter.get().getChapter_number());
-                // Отправляем пользователя на страницу с главой и кнопкой "Следующая глава"
-                req.getRequestDispatcher("startQuest.jsp").forward(req, resp);
-            } else {
-                //
-                // Отправляем данные на страницу для отображения
-                Integer currentQuestionId = (Integer) req.getSession().getAttribute("currentQuestionId");
-                if (currentQuestionId == null) {
-                    currentQuestionId = questions.get(0).getId(); // Начинаем с первого вопроса
-                    req.getSession().setAttribute("currentQuestionId", currentQuestionId);
-                }
-
-                Optional<Question> currentQuestion = questionDAO.findById(currentQuestionId);
-
-                if (currentQuestion.isPresent()) {
-                    List<Answer> answers = answerDAO.getAnswersByQuestionId(currentQuestionId);
-                    currentQuestion.get().setAnswers(answers);
-
-                    req.getSession().setAttribute("questId", questId);
-                    req.setAttribute("currentChapter", chapter.get());
-                    req.setAttribute("currentQuestion", currentQuestion.get());
-                    String previousAnswerDescription = (String) req.getAttribute("previousAnswerDescription");
-                    req.setAttribute("previousAnswerDescription", previousAnswerDescription);
-                    req.getRequestDispatcher("startQuest.jsp").forward(req, resp);
-                }
-            }
-        } else {
-            // Завершение квеста
+        if (questResponse.isTheEnd()) {
             resp.sendRedirect("endOfQuest.jsp");
+        } else {
+            req.getRequestDispatcher("startQuest.jsp").forward(req, resp);
         }
     }
 
+
+
+    private void setupRequestAttributes(HttpServletRequest req, QuestResponse questResponse) {
+        req.setAttribute("currentChapter", questResponse.getCurrentChapter());
+        req.setAttribute("currentQuestion", questResponse.getCurrentQuestion());
+        req.setAttribute("isIntroductoryChapter", questResponse.isIntroductoryChapter());
+        String previousAnswerDescription = (String) req.getAttribute("previousAnswerDescription");
+                    req.setAttribute("previousAnswerDescription", previousAnswerDescription);
+
+        // Обновление параметров сессии
+        req.getSession().setAttribute("questId", questResponse.getQuestId());
+        req.getSession().setAttribute("currentChapterNumber", questResponse.getCurrentChapter().getChapter_number());
+        if (!questResponse.isIntroductoryChapter()) {
+            req.getSession().setAttribute("currentQuestionId", questResponse.getCurrentQuestion().getId());
+        }
+    }
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
