@@ -15,7 +15,7 @@
             <c:if test="${not empty quests}">
                 <c:forEach var="quest" items="${quests}">
                     <div class="col"> <!-- Каждая карточка квеста будет находиться в отдельной колонке -->
-                        <a href="${pageContext.request.contextPath}/quest/${quest.id}" class="card shadow-sm"> <!-- Обернули карточку в тег <a> -->
+                        <a href="${pageContext.request.contextPath}/quest?questId=${quest.id}" class="card shadow-sm">
                             <img class="bd-placeholder-img card-img-top" width="100%" height="225" src="${pageContext.request.contextPath}/${quest.imagePath}" alt="${quest.title}" role="img" focusable="false">
                             <div class="card-body">
                                 <h2 class="card-title">${quest.title}</h2>

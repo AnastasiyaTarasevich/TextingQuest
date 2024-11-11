@@ -6,9 +6,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.textingquest.daos.AnswerDAO;
-import org.example.textingquest.daos.ChapterDAO;
-import org.example.textingquest.daos.QuestionDAO;
 import org.example.textingquest.entities.Answer;
 import org.example.textingquest.entities.Chapter;
 import org.example.textingquest.entities.Question;
@@ -16,7 +13,7 @@ import org.example.textingquest.responses.QuestResponse;
 import org.example.textingquest.services.QuestService;
 
 import java.io.IOException;
-import java.util.List;
+
 import java.util.Optional;
 
 
@@ -24,11 +21,6 @@ import java.util.Optional;
 @WebServlet("/startQuest")
 public class StartQuestServlet extends HttpServlet {
 
-    private final ChapterDAO chapterDAO = ChapterDAO.getInstance();
-
-    private final QuestionDAO questionDAO = QuestionDAO.getInstance();
-
-    private final AnswerDAO answerDAO=AnswerDAO.getInstance();
 
     private final QuestService questService=QuestService.getInstance();
 
@@ -91,12 +83,11 @@ public class StartQuestServlet extends HttpServlet {
 
                     if (selectedAnswer.getNext_question_id() != null) {
                         processNextQuestion(req, resp, selectedAnswer, currentChapterNumber);
-                        return;
                     } else {
 
                         endQuest(req, resp, selectedAnswer);
-                        return;
                     }
+                    return;
                 }
             }
 
@@ -113,14 +104,10 @@ public class StartQuestServlet extends HttpServlet {
                 Chapter nextChapter = questService.getChapterById(nextQuestionChapterId);
                 req.setAttribute("newChapter", nextChapter);
                 req.setAttribute("isNewChapter", true);
-                req.setAttribute("previousAnswerDescription", selectedAnswer.getDescription());
-                req.getSession().setAttribute("currentQuestionId", selectedAnswer.getNext_question_id());
-                doGet(req, resp);
-            } else {
-                req.setAttribute("previousAnswerDescription", selectedAnswer.getDescription());
-                req.getSession().setAttribute("currentQuestionId", selectedAnswer.getNext_question_id());
-                doGet(req, resp);
             }
+            req.setAttribute("previousAnswerDescription", selectedAnswer.getDescription());
+            req.getSession().setAttribute("currentQuestionId", selectedAnswer.getNext_question_id());
+            doGet(req, resp);
         }
 
 

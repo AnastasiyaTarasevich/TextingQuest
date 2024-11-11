@@ -55,13 +55,13 @@ public class ReviewServlet extends HttpServlet {
     }
     private Integer parseRating(String ratingParam) {
         if (ratingParam == null || ratingParam.trim().isEmpty()) {
-            return null; // Возвращаем null, если поле пустое
+            return null;
         }
 
         try {
-            return Integer.parseInt(ratingParam); // Преобразование строки в число
+            return Integer.parseInt(ratingParam);
         } catch (NumberFormatException e) {
-            return null; // Возвращаем null при некорректном значении
+            return null;
         }
     }
 }
