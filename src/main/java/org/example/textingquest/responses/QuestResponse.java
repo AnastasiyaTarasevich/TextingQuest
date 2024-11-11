@@ -17,8 +17,11 @@ public class QuestResponse {
     private Integer questId;
     private Integer currentChapterNumber;
     private Chapter currentChapter;
+    private Chapter newChapter;
     private Question currentQuestion;
+    private String previousAnswerDescription;
+    private Question nextQuestion;
     private boolean isIntroductoryChapter;
-    private boolean isNewChapter;
+    private boolean isNewChapterFlag;
     private boolean isTheEnd;
 }

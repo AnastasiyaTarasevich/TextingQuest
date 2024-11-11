@@ -19,8 +19,6 @@ public class ConQuestServlet extends HttpServlet {
 
     private static final QuestService questService=QuestService.getInstance();
 
-
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String pathInfo = req.getPathInfo(); // Получение информации о пути

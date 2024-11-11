@@ -58,25 +58,27 @@ public class QuestService {
         }
         return questResponse;
     }
+
     private void setCurrentQuestionAndAnswers(QuestResponse response, List<Question> questions, Integer currentQuestionId) {
         Question currentQuestion;
 
         if (currentQuestionId != null) {
             // Ищем вопрос по ID
             Optional<Question> optionalQuestion = questionDAO.findById(currentQuestionId)
-                    .map(Question.class::cast); // Преобразуем результат в Optional<Question>
+                    .map(Question.class::cast);
             currentQuestion = optionalQuestion.orElse(questions.get(0));
         } else {
-            // Если ID вопроса отсутствует, берем первый вопрос
+
             currentQuestion = questions.get(0);
         }
 
         response.setCurrentQuestion(currentQuestion);
 
-        // Получаем ответы для текущего вопроса
+
         List<Answer> answers = answerDAO.getAnswersByQuestionId(currentQuestion.getId());
         currentQuestion.setAnswers(answers);
     }
+
     public Integer parseQuestId(HttpServletRequest req) {
         String questIdParam = req.getParameter("questId");
         return questIdParam != null ? Integer.parseInt(questIdParam) : (Integer) req.getSession().getAttribute("questId");
@@ -89,6 +91,22 @@ public class QuestService {
 
     public Integer getCurrentQuestionId(HttpServletRequest req) {
         return (Integer) req.getSession().getAttribute("currentQuestionId");
+    }
+
+    public Answer getAnswerById(Integer answerId) {
+        return AnswerDAO.getInstance().findById(answerId);
+    }
+
+    public Optional<Question> getNextQuestionByAnswer(Answer selectedAnswer) {
+        return QuestionDAO.getInstance().findById(selectedAnswer.getNext_question_id());
+    }
+
+    public Chapter getChapterById(Integer chapterId) {
+        return ChapterDAO.getInstance().findById(chapterId);
+    }
+
+    public Optional<Chapter> findNextChapter(Integer questId, Integer currentChapterNumber) {
+        return ChapterDAO.getInstance().findNextChapter(questId, currentChapterNumber);
     }
 
 }

@@ -40,7 +40,6 @@ public class StartQuestServlet extends HttpServlet {
         Integer currentChapterNumber = questService.getCurrentChapterNumber(req);
         Integer currentQuestionId = questService.getCurrentQuestionId(req);
 
-        // Получение данных квеста через сервис
         QuestResponse questResponse = questService.processQuest(questId, currentChapterNumber, currentQuestionId);
 
 
@@ -60,6 +59,8 @@ public class StartQuestServlet extends HttpServlet {
 
     private void setupRequestAttributes(HttpServletRequest req, QuestResponse questResponse) {
         req.setAttribute("currentChapter", questResponse.getCurrentChapter());
+        req.setAttribute("newChapter", questResponse.getNewChapter());
+         req.setAttribute("isNewChapter", questResponse.isNewChapterFlag());
         req.setAttribute("currentQuestion", questResponse.getCurrentQuestion());
         req.setAttribute("isIntroductoryChapter", questResponse.isIntroductoryChapter());
         String previousAnswerDescription = (String) req.getAttribute("previousAnswerDescription");
@@ -72,62 +73,75 @@ public class StartQuestServlet extends HttpServlet {
             req.getSession().setAttribute("currentQuestionId", questResponse.getCurrentQuestion().getId());
         }
     }
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
 
-        Integer questId = (Integer) req.getSession().getAttribute("questId");
-        Integer currentChapterNumber = (Integer) req.getSession().getAttribute("currentChapterNumber");
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            req.setCharacterEncoding("UTF-8");
 
+            Integer questId = (Integer) req.getSession().getAttribute("questId");
+            Integer currentChapterNumber = (Integer) req.getSession().getAttribute("currentChapterNumber");
 
-        // Проверка, есть ли параметры ответа
-        String answerIdParam = req.getParameter("answerId");
+            String answerIdParam = req.getParameter("answerId");
 
-        if (answerIdParam != null) {
-
+            if (answerIdParam != null) {
                 Integer answerId = Integer.parseInt(answerIdParam);
-                Answer selectedAnswer = answerDAO.findById(answerId);
+                Answer selectedAnswer = questService.getAnswerById(answerId);
 
-            if (selectedAnswer != null) {
-                // Проверка на наличие следующего вопроса
-                if (selectedAnswer.getNext_question_id() != null) {
-                    // Обновляем текущий вопрос в сессии на следующий вопрос
-                    Optional<Question> nextQuestion = questionDAO.findById(selectedAnswer.getNext_question_id());
-                    Integer nextQuestionChapterId = nextQuestion.get().getChapter_id();
+                if (selectedAnswer != null) {
 
-                    Chapter nextChapter = chapterDAO.findById(nextQuestionChapterId);
-                    if (!nextQuestionChapterId.equals(currentChapterNumber))
-                    {
-                        req.setAttribute("newChapter", nextChapter); // Описание новой главы
-                        req.setAttribute("isNewChapter", true); // Флаг перехода в новую главу
-                        req.setAttribute("previousAnswerDescription", selectedAnswer.getDescription());
-                        req.getSession().setAttribute("currentQuestionId", selectedAnswer.getNext_question_id());
-                        doGet(req, resp); // Перенаправляем на следующий вопрос
-                    }else {
-                        req.setAttribute("previousAnswerDescription", selectedAnswer.getDescription());
-                        req.getSession().setAttribute("currentQuestionId", selectedAnswer.getNext_question_id());
-                        doGet(req, resp); // Перенаправляем на следующий вопрос
+                    if (selectedAnswer.getNext_question_id() != null) {
+                        processNextQuestion(req, resp, selectedAnswer, currentChapterNumber);
+                        return;
+                    } else {
+
+                        endQuest(req, resp, selectedAnswer);
+                        return;
                     }
-                    return;
-                } else {
-                    // Если у ответа нет следующего вопроса, считаем квест завершённым
-                    req.setAttribute("previousAnswerDescription", selectedAnswer.getDescription());
-                    req.getRequestDispatcher("endOfQuest.jsp").forward(req, resp);  // Перенаправляем на страницу завершения квеста
-                    return;
                 }
             }
 
+            goToNextChapter(req, resp, questId, currentChapterNumber);
         }
-            Optional<Chapter> nextChapter = chapterDAO.findNextChapter(questId, currentChapterNumber);
+
+
+        // Метод для обработки перехода на следующий вопрос
+        private void processNextQuestion(HttpServletRequest req, HttpServletResponse resp, Answer selectedAnswer, Integer currentChapterNumber) throws ServletException, IOException {
+            Optional<Question> nextQuestion = questService.getNextQuestionByAnswer(selectedAnswer);
+            Integer nextQuestionChapterId = nextQuestion.get().getChapter_id();
+
+            if (!nextQuestionChapterId.equals(currentChapterNumber)) {
+                Chapter nextChapter = questService.getChapterById(nextQuestionChapterId);
+                req.setAttribute("newChapter", nextChapter);
+                req.setAttribute("isNewChapter", true);
+                req.setAttribute("previousAnswerDescription", selectedAnswer.getDescription());
+                req.getSession().setAttribute("currentQuestionId", selectedAnswer.getNext_question_id());
+                doGet(req, resp);
+            } else {
+                req.setAttribute("previousAnswerDescription", selectedAnswer.getDescription());
+                req.getSession().setAttribute("currentQuestionId", selectedAnswer.getNext_question_id());
+                doGet(req, resp);
+            }
+        }
+
+
+        private void endQuest(HttpServletRequest req, HttpServletResponse resp, Answer selectedAnswer) throws ServletException, IOException {
+            req.setAttribute("previousAnswerDescription", selectedAnswer.getDescription());
+            req.getRequestDispatcher("endOfQuest.jsp").forward(req, resp);
+        }
+
+
+        private void goToNextChapter(HttpServletRequest req, HttpServletResponse resp, Integer questId, Integer currentChapterNumber) throws IOException, ServletException {
+            Optional<Chapter> nextChapter = questService.findNextChapter(questId, currentChapterNumber);
 
             if (nextChapter.isPresent()) {
                 req.getSession().setAttribute("questId", questId);
                 req.getSession().setAttribute("currentChapterNumber", nextChapter.get().getChapter_number());
                 doGet(req, resp);
             } else {
-                resp.sendRedirect("endOfQuest.jsp"); // Если следующей главы нет
+                resp.sendRedirect("endOfQuest.jsp");
             }
         }
+
     }
 
 
